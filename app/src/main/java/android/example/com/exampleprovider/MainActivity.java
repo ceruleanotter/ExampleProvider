@@ -1,22 +1,63 @@
 package android.example.com.exampleprovider;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.example.com.exampleprovider.data.ExampleContract;
+import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 import android.example.com.exampleprovider.data.ExampleDbHelper;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
 
     ExampleDbHelper mDatabaseHelper;
+    public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mDatabaseHelper = new ExampleDbHelper(this);
+        ContentValues values = new ContentValues();
+        values.put(ExampleEntry.NAME, "Dan");
+        values.put(ExampleEntry.NUMBER_OF_FRIENDS, 552);
+        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
+        db.delete(ExampleEntry.TABLE_NAME,null,null);
 
+        long id = mDatabaseHelper.getWritableDatabase().insert(
+                ExampleContract.ExampleEntry.TABLE_NAME, null, values
+        );
+
+        Log.e(LOG_TAG,"Inserted with value " + id);
+
+
+        Cursor cursor = mDatabaseHelper.getWritableDatabase().query(
+                ExampleEntry.TABLE_NAME,
+                null,
+                ExampleEntry._ID + " = '" + id + "'",
+                null,
+                null,
+                null,
+                null
+        );
+
+        TextView textView = (TextView)findViewById(R.id.main_text_view);
+        textView.setText("");
+        while(cursor.moveToNext()) {
+            textView.append(Integer.toString(cursor.getInt(cursor.getColumnIndex(ExampleEntry._ID))));
+            textView.append("\t|\t");
+            textView.append(cursor.getString(cursor.getColumnIndex(ExampleEntry.NAME)));
+            textView.append("\t|\t");
+            textView.append(Integer.toString(cursor.getInt(cursor.getColumnIndex(ExampleEntry.NUMBER_OF_FRIENDS))));
+        }
+
+        cursor.close();
 
 
     }
