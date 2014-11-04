@@ -42,6 +42,9 @@ public class MainActivity extends ActionBarActivity {
                 ExampleContract.ExampleEntry.TABLE_NAME, null, values
         );
 
+        this.getContentResolver().delete(ExampleEntry.buildExampleUriWithID(id),null, null);
+
+
         Cursor cursor = this.getContentResolver().query(ExampleEntry.TABLE_URI,null, null,null,null);
 
 

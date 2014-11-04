@@ -7,7 +7,6 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.util.Log;
 
 /**
  * Created by lyla on 11/4/14.
@@ -61,8 +60,6 @@ public class ExampleProvider extends ContentProvider{
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
                         String sortOrder) {
 
-        Log.e(LOG_TAG, "the uri is " + uri + "\nAnd the constant uri is " + ExampleContract.ExampleEntry.TABLE_URI);
-
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         switch (sUriMatcher.match(uri)) {
@@ -105,12 +102,51 @@ public class ExampleProvider extends ContentProvider{
 
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
-        return null;
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        switch (sUriMatcher.match(uri)) {
+            case FRIEND: {
+                long id = db.insert(ExampleContract.ExampleEntry.TABLE_NAME, null, contentValues);
+
+                if (id == -1) return null; //it failed!
+
+                //This is where you update anything that might also be watching the content provider
+                getContext().getContentResolver().notifyChange(uri, null);
+
+                return ExampleContract.ExampleEntry.buildExampleUriWithID(id);
+            }
+            default: {
+                return null;
+            }
+        }
     }
 
     @Override
-    public int delete(Uri uri, String s, String[] strings) {
-        return 0;
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsDeleted;
+        switch (match) {
+            case FRIEND:
+                rowsDeleted = db.delete(
+                        ExampleContract.ExampleEntry.TABLE_NAME, null, null);
+                break;
+            case FRIEND_WITH_ID:
+                rowsDeleted = db.delete(
+                        ExampleContract.ExampleEntry.TABLE_NAME,
+                        ExampleContract.ExampleEntry._ID + " = '" + ContentUris.parseId(uri)  + "'",
+                        selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        // Because a null deletes all rows
+        if (selection == null || rowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return rowsDeleted;
     }
 
     @Override
