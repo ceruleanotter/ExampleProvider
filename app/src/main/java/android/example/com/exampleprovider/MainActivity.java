@@ -3,9 +3,9 @@ package android.example.com.exampleprovider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.example.com.exampleprovider.data.ExampleContract;
 import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 import android.example.com.exampleprovider.data.ExampleDbHelper;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -62,30 +62,40 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void insertData(){
+    private void insertData() {
         ContentResolver resolver =  this.getContentResolver();
 
-        String nameOne = "Dan";
-        String nameTwo = "Katherine";
-        int friendsOne = 500;
-        int friendsTwo = 500;
-
-        ContentValues values = new ContentValues();
-        values.put(ExampleContract.ExampleEntry.NAME, nameOne);
-        values.put(ExampleContract.ExampleEntry.NUMBER_OF_FRIENDS, friendsOne);
+        Cursor cursor = resolver.query(ExampleEntry.TABLE_URI, null,null,null,null);
+        if (cursor.getCount() == 0) {
 
 
-        resolver.insert(
-                ExampleContract.ExampleEntry.TABLE_URI, values
-        );
+            String nameOne = "Dan";
+            String nameTwo = "Katherine";
+            int friendsOne = 500;
+            int friendsTwo = 500;
 
-        values.clear();
-        values.put(ExampleContract.ExampleEntry.NAME, nameTwo);
-        values.put(ExampleContract.ExampleEntry.NUMBER_OF_FRIENDS, friendsTwo);
+            ContentValues values = new ContentValues();
+            values.put(ExampleEntry.NAME, nameOne);
+            values.put(ExampleEntry.NUMBER_OF_FRIENDS, friendsOne);
 
 
-        resolver.insert(
-                ExampleContract.ExampleEntry.TABLE_URI, values
-        );
+            resolver.insert(
+                    ExampleEntry.TABLE_URI, values
+            );
+
+            values.clear();
+            values.put(ExampleEntry.NAME, nameTwo);
+            values.put(ExampleEntry.NUMBER_OF_FRIENDS, friendsTwo);
+
+
+            Uri old = resolver.insert(
+                    ExampleEntry.TABLE_URI, values
+            );
+
+            values.clear();
+
+            values.put(ExampleEntry.NUMBER_OF_FRIENDS, friendsTwo + 50);
+            resolver.update(old, values, null, null);
+        }
     }
 }

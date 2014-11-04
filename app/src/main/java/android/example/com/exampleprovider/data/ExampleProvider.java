@@ -83,7 +83,7 @@ public class ExampleProvider extends ContentProvider{
             }
 
             default: {
-                return null;
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
             }
         }
     }
@@ -109,7 +109,7 @@ public class ExampleProvider extends ContentProvider{
                 return ExampleContract.ExampleEntry.buildExampleUriWithID(id);
             }
             default: {
-                return null;
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
 
             }
         }
@@ -144,7 +144,30 @@ public class ExampleProvider extends ContentProvider{
     }
 
     @Override
-    public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
-        return 0;
+    public int update(Uri uri, ContentValues contentValues, String where, String[] whereargs) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        int numberUpdated = 0;
+
+        switch (sUriMatcher.match(uri)) {
+            case FRIEND_WITH_ID: {
+                numberUpdated = db.update(
+                        ExampleContract.ExampleEntry.TABLE_NAME,
+                        contentValues,
+                        ExampleContract.ExampleEntry._ID + " = '" + ContentUris.parseId(uri)  + "'",
+                        null
+                        );
+                break;
+            }
+
+            default: {
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+            }
+        }
+
+        if (numberUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return numberUpdated;
+
     }
 }
