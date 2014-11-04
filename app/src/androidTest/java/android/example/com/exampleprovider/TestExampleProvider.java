@@ -227,4 +227,70 @@ public class TestExampleProvider extends AndroidTestCase {
                 ExampleEntry.CONTENT_ITEM_TYPE);
     }
 
+
+    public void testBulkInsert(){
+        ContentResolver resolver =  mContext.getContentResolver();
+
+        String nameOne = "Dan";
+        String nameTwo = "Katherine";
+        int friendsOne = 552;
+        int friendsTwo = 559;
+
+        ContentValues[] values = new ContentValues[2];
+        values[0] = new ContentValues();
+        values[0].put(ExampleEntry.NAME, nameOne);
+        values[0].put(ExampleEntry.NUMBER_OF_FRIENDS, friendsOne);
+
+        values[1] = new ContentValues();
+        values[1].put(ExampleEntry.NAME, nameTwo);
+        values[1].put(ExampleEntry.NUMBER_OF_FRIENDS, friendsTwo);
+
+        resolver.bulkInsert(ExampleEntry.TABLE_URI,values);
+
+
+        Cursor cursor = mContext.getContentResolver().query(
+                ExampleContract.ExampleEntry.TABLE_URI,
+                null,
+                null,
+                null,
+                null
+        );
+
+        assertEquals(2, cursor.getCount());
+        cursor.close(); //ALWAYS CLOSE YOUR CURSOR
+
+        cursor = mContext.getContentResolver().query(
+                ExampleEntry.TABLE_URI,
+                null,
+                null,
+                null,
+                null
+        );
+
+        cursor.moveToFirst();
+        int i = 1;
+        while (cursor.moveToNext()) {
+            assertEquals(cursor.getString(cursor.getColumnIndex(
+                            ExampleContract.ExampleEntry.NAME)),
+                    values[i].getAsString(ExampleContract.ExampleEntry.NAME));
+            assertEquals(cursor.getInt(cursor.getColumnIndex(
+                            ExampleContract.ExampleEntry.NUMBER_OF_FRIENDS)),
+                    values[i].getAsInteger(ExampleEntry.NUMBER_OF_FRIENDS).intValue());
+            i--;
+        }
+
+        cursor.close();
+
+        cursor = mContext.getContentResolver().query(
+                ExampleContract.ExampleEntry.TABLE_URI,
+                null,
+                null,
+                null,
+                null
+        );
+
+        assertEquals(2, cursor.getCount());
+        cursor.close();
+    }
+
 }

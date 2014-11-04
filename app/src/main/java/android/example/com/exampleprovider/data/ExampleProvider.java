@@ -55,7 +55,7 @@ public class ExampleProvider extends ContentProvider{
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
                         String sortOrder) {
 
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        final SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         switch (sUriMatcher.match(uri)) {
             case FRIEND: {
@@ -107,7 +107,7 @@ public class ExampleProvider extends ContentProvider{
 
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        final SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         switch (sUriMatcher.match(uri)) {
             case FRIEND: {
@@ -157,7 +157,7 @@ public class ExampleProvider extends ContentProvider{
 
     @Override
     public int update(Uri uri, ContentValues contentValues, String where, String[] whereargs) {
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        final SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int numberUpdated = 0;
 
         switch (sUriMatcher.match(uri)) {
@@ -181,5 +181,33 @@ public class ExampleProvider extends ContentProvider{
         }
         return numberUpdated;
 
+    }
+
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+
+        final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case FRIEND:
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(ExampleEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            default:
+                return super.bulkInsert(uri, values);
+        }
     }
 }

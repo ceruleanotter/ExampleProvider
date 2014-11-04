@@ -4,8 +4,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
-import android.example.com.exampleprovider.data.ExampleDbHelper;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -15,7 +13,7 @@ import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity {
 
-    ExampleDbHelper mDatabaseHelper;
+
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     @Override
@@ -74,28 +72,19 @@ public class MainActivity extends ActionBarActivity {
             int friendsOne = 500;
             int friendsTwo = 500;
 
-            ContentValues values = new ContentValues();
-            values.put(ExampleEntry.NAME, nameOne);
-            values.put(ExampleEntry.NUMBER_OF_FRIENDS, friendsOne);
+            ContentValues[] values = new ContentValues[2];
+            values[0] = new ContentValues();
+            values[0].put(ExampleEntry.NAME, nameOne);
+            values[0].put(ExampleEntry.NUMBER_OF_FRIENDS, friendsOne);
 
 
-            resolver.insert(
-                    ExampleEntry.TABLE_URI, values
-            );
+            values[1] = new ContentValues();
+            values[1].put(ExampleEntry.NAME, nameTwo);
+            values[1].put(ExampleEntry.NUMBER_OF_FRIENDS, friendsTwo);
 
-            values.clear();
-            values.put(ExampleEntry.NAME, nameTwo);
-            values.put(ExampleEntry.NUMBER_OF_FRIENDS, friendsTwo);
+            resolver.bulkInsert(ExampleEntry.TABLE_URI,values);
 
 
-            Uri old = resolver.insert(
-                    ExampleEntry.TABLE_URI, values
-            );
-
-            values.clear();
-
-            values.put(ExampleEntry.NUMBER_OF_FRIENDS, friendsTwo + 50);
-            resolver.update(old, values, null, null);
         }
     }
 }
