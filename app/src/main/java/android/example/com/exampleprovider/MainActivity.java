@@ -8,7 +8,6 @@ import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 import android.example.com.exampleprovider.data.ExampleDbHelper;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -30,31 +29,32 @@ public class MainActivity extends ActionBarActivity {
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         db.delete(ExampleEntry.TABLE_NAME,null,null);
 
+        mDatabaseHelper.getWritableDatabase().insert(
+                ExampleContract.ExampleEntry.TABLE_NAME, null, values
+        );
+
+        values.clear();
+        values.put(ExampleEntry.NAME, "Katherine");
+        values.put(ExampleEntry.NUMBER_OF_FRIENDS, 599);
+
+
         long id = mDatabaseHelper.getWritableDatabase().insert(
                 ExampleContract.ExampleEntry.TABLE_NAME, null, values
         );
 
-        Log.e(LOG_TAG,"Inserted with value " + id);
+        Cursor cursor = this.getContentResolver().query(ExampleEntry.buildExampleUriWithID(id),null, null,null,null);
 
-
-        Cursor cursor = mDatabaseHelper.getWritableDatabase().query(
-                ExampleEntry.TABLE_NAME,
-                null,
-                ExampleEntry._ID + " = '" + id + "'",
-                null,
-                null,
-                null,
-                null
-        );
 
         TextView textView = (TextView)findViewById(R.id.main_text_view);
         textView.setText("");
         while(cursor.moveToNext()) {
+
             textView.append(Integer.toString(cursor.getInt(cursor.getColumnIndex(ExampleEntry._ID))));
             textView.append("\t|\t");
             textView.append(cursor.getString(cursor.getColumnIndex(ExampleEntry.NAME)));
             textView.append("\t|\t");
             textView.append(Integer.toString(cursor.getInt(cursor.getColumnIndex(ExampleEntry.NUMBER_OF_FRIENDS))));
+            textView.append("\n");
         }
 
         cursor.close();
