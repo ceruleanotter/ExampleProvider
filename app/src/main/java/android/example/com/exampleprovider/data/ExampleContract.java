@@ -23,6 +23,12 @@ public class ExampleContract {
         public static final String TABLE_NAME = "friends";
 
 
+        public static final String CONTENT_DIR_TYPE =
+                "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + TABLE_NAME;
+        public static final String CONTENT_ITEM_TYPE =
+                "vnd.android.cursor.item/" + CONTENT_AUTHORITY + "/" + TABLE_NAME;
+
+
         public static final Uri TABLE_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(TABLE_NAME).build();
 

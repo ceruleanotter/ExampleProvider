@@ -8,6 +8,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
+import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
+
 /**
  * Created by lyla on 11/4/14.
  */
@@ -36,8 +38,8 @@ public class ExampleProvider extends ContentProvider{
         final String authority = ExampleContract.CONTENT_AUTHORITY;
 
         // For each type of URI you want to add, create a corresponding code.
-        matcher.addURI(authority, ExampleContract.ExampleEntry.TABLE_NAME, FRIEND);
-        matcher.addURI(authority, ExampleContract.ExampleEntry.TABLE_NAME + "/#", FRIEND_WITH_ID);
+        matcher.addURI(authority, ExampleEntry.TABLE_NAME, FRIEND);
+        matcher.addURI(authority, ExampleEntry.TABLE_NAME + "/#", FRIEND_WITH_ID);
 
         return matcher;
     }
@@ -58,7 +60,7 @@ public class ExampleProvider extends ContentProvider{
         switch (sUriMatcher.match(uri)) {
             case FRIEND: {
                 Cursor cursor = db.query(
-                        ExampleContract.ExampleEntry.TABLE_NAME,
+                        ExampleEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -71,9 +73,9 @@ public class ExampleProvider extends ContentProvider{
             }
             case FRIEND_WITH_ID: {
                 Cursor cursor = db.query(
-                        ExampleContract.ExampleEntry.TABLE_NAME,
+                        ExampleEntry.TABLE_NAME,
                         projection,
-                        ExampleContract.ExampleEntry._ID + " = '" + ContentUris.parseId(uri)  + "'",
+                        ExampleEntry._ID + " = '" + ContentUris.parseId(uri)  + "'",
                         selectionArgs,
                         null,
                         null,
@@ -90,7 +92,17 @@ public class ExampleProvider extends ContentProvider{
 
     @Override
     public String getType(Uri uri) {
-        return null;
+        switch (sUriMatcher.match(uri)) {
+            case FRIEND: {
+                return ExampleEntry.CONTENT_DIR_TYPE;
+            }
+            case FRIEND_WITH_ID: {
+                return ExampleEntry.CONTENT_ITEM_TYPE;
+            }
+            default: {
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+            }
+        }
     }
 
     @Override
@@ -99,14 +111,14 @@ public class ExampleProvider extends ContentProvider{
 
         switch (sUriMatcher.match(uri)) {
             case FRIEND: {
-                long id = db.insert(ExampleContract.ExampleEntry.TABLE_NAME, null, contentValues);
+                long id = db.insert(ExampleEntry.TABLE_NAME, null, contentValues);
 
                 if (id == -1) return null; //it failed!
 
                 //This is where you update anything that might also be watching the content provider
                 getContext().getContentResolver().notifyChange(uri, null);
 
-                return ExampleContract.ExampleEntry.buildExampleUriWithID(id);
+                return ExampleEntry.buildExampleUriWithID(id);
             }
             default: {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -123,12 +135,12 @@ public class ExampleProvider extends ContentProvider{
         switch (match) {
             case FRIEND:
                 rowsDeleted = db.delete(
-                        ExampleContract.ExampleEntry.TABLE_NAME, null, null);
+                        ExampleEntry.TABLE_NAME, null, null);
                 break;
             case FRIEND_WITH_ID:
                 rowsDeleted = db.delete(
-                        ExampleContract.ExampleEntry.TABLE_NAME,
-                        ExampleContract.ExampleEntry._ID + " = '" + ContentUris.parseId(uri)  + "'",
+                        ExampleEntry.TABLE_NAME,
+                        ExampleEntry._ID + " = '" + ContentUris.parseId(uri)  + "'",
                         selectionArgs);
                 break;
             default:
@@ -151,9 +163,9 @@ public class ExampleProvider extends ContentProvider{
         switch (sUriMatcher.match(uri)) {
             case FRIEND_WITH_ID: {
                 numberUpdated = db.update(
-                        ExampleContract.ExampleEntry.TABLE_NAME,
+                        ExampleEntry.TABLE_NAME,
                         contentValues,
-                        ExampleContract.ExampleEntry._ID + " = '" + ContentUris.parseId(uri)  + "'",
+                        ExampleEntry._ID + " = '" + ContentUris.parseId(uri)  + "'",
                         null
                         );
                 break;

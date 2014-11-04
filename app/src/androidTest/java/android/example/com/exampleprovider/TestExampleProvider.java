@@ -220,4 +220,11 @@ public class TestExampleProvider extends AndroidTestCase {
 
     }
 
+    public void testGetType(){
+        assertEquals(mContext.getContentResolver().getType(ExampleEntry.TABLE_URI),
+                ExampleEntry.CONTENT_DIR_TYPE);
+        assertEquals(mContext.getContentResolver().getType(ExampleEntry.buildExampleUriWithID(1)),
+                ExampleEntry.CONTENT_ITEM_TYPE);
+    }
+
 }
