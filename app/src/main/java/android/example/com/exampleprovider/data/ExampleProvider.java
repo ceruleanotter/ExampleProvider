@@ -43,13 +43,6 @@ public class ExampleProvider extends ContentProvider{
     }
 
 
-
-
-
-
-
-
-
     @Override
     public boolean onCreate() {
         mDbHelper = new ExampleDbHelper(getContext());
@@ -117,6 +110,7 @@ public class ExampleProvider extends ContentProvider{
             }
             default: {
                 return null;
+
             }
         }
     }

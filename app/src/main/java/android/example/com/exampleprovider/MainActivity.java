@@ -1,8 +1,8 @@
 package android.example.com.exampleprovider;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.example.com.exampleprovider.data.ExampleContract;
 import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 import android.example.com.exampleprovider.data.ExampleDbHelper;
@@ -22,34 +22,13 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mDatabaseHelper = new ExampleDbHelper(this);
-        ContentValues values = new ContentValues();
-        values.put(ExampleEntry.NAME, "Dan");
-        values.put(ExampleEntry.NUMBER_OF_FRIENDS, 552);
-        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-        db.delete(ExampleEntry.TABLE_NAME,null,null);
 
-        mDatabaseHelper.getWritableDatabase().insert(
-                ExampleContract.ExampleEntry.TABLE_NAME, null, values
-        );
-
-        values.clear();
-        values.put(ExampleEntry.NAME, "Katherine");
-        values.put(ExampleEntry.NUMBER_OF_FRIENDS, 599);
-
-
-        long id = mDatabaseHelper.getWritableDatabase().insert(
-                ExampleContract.ExampleEntry.TABLE_NAME, null, values
-        );
-
-        this.getContentResolver().delete(ExampleEntry.buildExampleUriWithID(id),null, null);
-
+        insertData();
 
         Cursor cursor = this.getContentResolver().query(ExampleEntry.TABLE_URI,null, null,null,null);
 
-
         TextView textView = (TextView)findViewById(R.id.main_text_view);
-        textView.setText("");
+        textView.setText("\n");
         while(cursor.moveToNext()) {
 
             textView.append(Integer.toString(cursor.getInt(cursor.getColumnIndex(ExampleEntry._ID))));
@@ -58,11 +37,9 @@ public class MainActivity extends ActionBarActivity {
             textView.append("\t|\t");
             textView.append(Integer.toString(cursor.getInt(cursor.getColumnIndex(ExampleEntry.NUMBER_OF_FRIENDS))));
             textView.append("\n");
+
         }
-
         cursor.close();
-
-
     }
 
 
@@ -83,5 +60,32 @@ public class MainActivity extends ActionBarActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void insertData(){
+        ContentResolver resolver =  this.getContentResolver();
+
+        String nameOne = "Dan";
+        String nameTwo = "Katherine";
+        int friendsOne = 500;
+        int friendsTwo = 500;
+
+        ContentValues values = new ContentValues();
+        values.put(ExampleContract.ExampleEntry.NAME, nameOne);
+        values.put(ExampleContract.ExampleEntry.NUMBER_OF_FRIENDS, friendsOne);
+
+
+        resolver.insert(
+                ExampleContract.ExampleEntry.TABLE_URI, values
+        );
+
+        values.clear();
+        values.put(ExampleContract.ExampleEntry.NAME, nameTwo);
+        values.put(ExampleContract.ExampleEntry.NUMBER_OF_FRIENDS, friendsTwo);
+
+
+        resolver.insert(
+                ExampleContract.ExampleEntry.TABLE_URI, values
+        );
     }
 }
