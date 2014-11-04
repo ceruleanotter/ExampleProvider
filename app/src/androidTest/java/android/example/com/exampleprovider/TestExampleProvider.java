@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.example.com.exampleprovider.data.ExampleContract;
+import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 import android.net.Uri;
 import android.test.AndroidTestCase;
 
@@ -28,13 +29,13 @@ public class TestExampleProvider extends AndroidTestCase {
 
     public void deleteAllRecords(){
         mContext.getContentResolver().delete(
-                ExampleContract.ExampleEntry.TABLE_URI,
+                ExampleEntry.TABLE_URI,
                 null,
                 null
         );
 
         Cursor cursor = mContext.getContentResolver().query(
-                ExampleContract.ExampleEntry.TABLE_URI,
+                ExampleEntry.TABLE_URI,
                 null,
                 null,
                 null,
@@ -169,6 +170,54 @@ public class TestExampleProvider extends AndroidTestCase {
 
     }
 
+    public void testUpdateEntry() throws Throwable {
+        testInsert();
+        int friendsToAdd = 100;
 
+        Cursor cursor = mContext.getContentResolver().query(
+                ExampleContract.ExampleEntry.TABLE_URI,
+                null,
+                null,
+                null,
+                null
+        );
+
+        assertEquals(2, cursor.getCount());
+        cursor.moveToLast();
+
+        long id = cursor.getLong(cursor.getColumnIndex(ExampleEntry._ID));
+        int friends = cursor.getInt(cursor.getColumnIndex(ExampleEntry.NUMBER_OF_FRIENDS));
+
+        ContentValues values = new ContentValues();
+        values.put(ExampleEntry.NUMBER_OF_FRIENDS, friends + friendsToAdd);
+
+        int rows = mContext.getContentResolver().update(
+                ExampleContract.ExampleEntry.buildExampleUriWithID(id),
+                values,
+                null,
+                null
+        );
+
+        assertEquals(rows, 1);
+
+        cursor.close();
+
+        cursor = mContext.getContentResolver().query(
+                ExampleContract.ExampleEntry.buildExampleUriWithID(id),
+                null,
+                null,
+                null,
+                null
+        );
+
+        cursor.moveToFirst();
+        assertEquals(cursor.getCount(), 1);
+
+        int newFriends = cursor.getInt(cursor.getColumnIndex(ExampleEntry.NUMBER_OF_FRIENDS));
+        assertEquals(newFriends, friends + friendsToAdd);
+
+
+
+    }
 
 }
