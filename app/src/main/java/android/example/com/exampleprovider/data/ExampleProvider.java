@@ -75,8 +75,8 @@ public class ExampleProvider extends ContentProvider{
                 Cursor cursor = db.query(
                         ExampleEntry.TABLE_NAME,
                         projection,
-                        ExampleEntry._ID + " = '" + ContentUris.parseId(uri)  + "'",
-                        selectionArgs,
+                        ExampleEntry._ID + " = ?",
+                        new String[]{String.valueOf(ContentUris.parseId(uri))},
                         null,
                         null,
                         sortOrder
@@ -140,8 +140,8 @@ public class ExampleProvider extends ContentProvider{
             case FRIEND_WITH_ID:
                 rowsDeleted = db.delete(
                         ExampleEntry.TABLE_NAME,
-                        ExampleEntry._ID + " = '" + ContentUris.parseId(uri)  + "'",
-                        selectionArgs);
+                        ExampleEntry._ID + " = ?",
+                        new String[]{String.valueOf(ContentUris.parseId(uri))});
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -165,8 +165,8 @@ public class ExampleProvider extends ContentProvider{
                 numberUpdated = db.update(
                         ExampleEntry.TABLE_NAME,
                         contentValues,
-                        ExampleEntry._ID + " = '" + ContentUris.parseId(uri)  + "'",
-                        null
+                        ExampleEntry._ID + " = ?",
+                        new String[]{String.valueOf(ContentUris.parseId(uri))}
                         );
                 break;
             }

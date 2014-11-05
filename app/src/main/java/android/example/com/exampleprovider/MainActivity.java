@@ -66,7 +66,6 @@ public class MainActivity extends ActionBarActivity {
         Cursor cursor = resolver.query(ExampleEntry.TABLE_URI, null,null,null,null);
         if (cursor.getCount() == 0) {
 
-
             String nameOne = "Dan";
             String nameTwo = "Katherine";
             int friendsOne = 500;
@@ -83,8 +82,7 @@ public class MainActivity extends ActionBarActivity {
             values[1].put(ExampleEntry.NUMBER_OF_FRIENDS, friendsTwo);
 
             resolver.bulkInsert(ExampleEntry.TABLE_URI,values);
-
-
         }
+        cursor.close();
     }
 }

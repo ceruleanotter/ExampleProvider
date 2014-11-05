@@ -210,6 +210,8 @@ public class TestExampleProvider extends AndroidTestCase {
         int newFriends = cursor.getInt(cursor.getColumnIndex(ExampleEntry.NUMBER_OF_FRIENDS));
         assertEquals(newFriends, friends + friendsToAdd);
 
+        cursor.close();
+
 
 
     }
