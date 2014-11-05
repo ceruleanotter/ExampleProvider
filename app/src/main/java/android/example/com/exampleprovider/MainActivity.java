@@ -8,13 +8,15 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
 
 public class MainActivity extends ActionBarActivity {
 
 
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
+    ListView mListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,20 +26,29 @@ public class MainActivity extends ActionBarActivity {
         insertData();
 
         Cursor cursor = this.getContentResolver().query(ExampleEntry.TABLE_URI,null, null,null,null);
+        mListView = (ListView) findViewById(R.id.main_list_view);
+        ContentResolver resolver = getContentResolver();
+        String[] columnsToBeBound = new String[] {
+                ExampleEntry.NAME,
+                ExampleEntry.NUMBER_OF_FRIENDS
+        };
 
-        TextView textView = (TextView)findViewById(R.id.main_text_view);
-        textView.setText("\n");
-        while(cursor.moveToNext()) {
+        int[] layoutItemsToFill = new int[] {
+                android.R.id.text1,
+                android.R.id.text2
+        };
 
-            textView.append(Integer.toString(cursor.getInt(cursor.getColumnIndex(ExampleEntry._ID))));
-            textView.append("\t|\t");
-            textView.append(cursor.getString(cursor.getColumnIndex(ExampleEntry.NAME)));
-            textView.append("\t|\t");
-            textView.append(Integer.toString(cursor.getInt(cursor.getColumnIndex(ExampleEntry.NUMBER_OF_FRIENDS))));
-            textView.append("\n");
 
-        }
-        cursor.close();
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
+                android.R.layout.two_line_list_item,
+                cursor,
+                columnsToBeBound,
+                layoutItemsToFill,
+                0);
+
+
+        mListView.setAdapter(adapter);
+
     }
 
 
