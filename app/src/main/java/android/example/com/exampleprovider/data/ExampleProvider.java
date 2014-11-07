@@ -187,7 +187,6 @@ public class ExampleProvider extends ContentProvider {
                         null);
                 break;
             }
-
             case FRIEND_WITH_ID: {
                 numberUpdated = db.update(
                         ExampleEntry.PATH_FRIENDS,
