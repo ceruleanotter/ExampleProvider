@@ -1,6 +1,22 @@
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package android.example.com.exampleprovider;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.example.com.exampleprovider.data.ExampleContract;
@@ -8,10 +24,9 @@ import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 import android.net.Uri;
 import android.test.AndroidTestCase;
 
-/**
- * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
- */
 public class TestExampleProvider extends AndroidTestCase {
+
+    //TODO query insert update delete tests, same ordering as in the provider
 
     @Override
     //Setup is called before each test
@@ -24,18 +39,17 @@ public class TestExampleProvider extends AndroidTestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
         deleteAllRecords();
-
     }
 
     public void deleteAllRecords() {
         mContext.getContentResolver().delete(
-                ExampleEntry.TABLE_URI,
+                ExampleEntry.CONTENT_URI,
                 null,
                 null
         );
 
         Cursor cursor = mContext.getContentResolver().query(
-                ExampleEntry.TABLE_URI,
+                ExampleEntry.CONTENT_URI,
                 null,
                 null,
                 null,
@@ -71,12 +85,12 @@ public class TestExampleProvider extends AndroidTestCase {
 
         for(int i = 0; i < values.length; i++) {
             uris[i] = resolver.insert(
-                    ExampleContract.ExampleEntry.TABLE_URI, values[i]
+                    ExampleContract.ExampleEntry.CONTENT_URI, values[i]
             );
         }
 
         Cursor cursor = mContext.getContentResolver().query(
-                ExampleContract.ExampleEntry.TABLE_URI,
+                ExampleContract.ExampleEntry.CONTENT_URI,
                 null,
                 null,
                 null,
@@ -113,12 +127,12 @@ public class TestExampleProvider extends AndroidTestCase {
         ContentResolver resolver =  mContext.getContentResolver();
         for(int i = 0; i < values.length; i++) {
             resolver.insert(
-                    ExampleContract.ExampleEntry.TABLE_URI, values[i]
+                    ExampleContract.ExampleEntry.CONTENT_URI, values[i]
             );
         }
 
         Cursor cursor = mContext.getContentResolver().query(
-                ExampleContract.ExampleEntry.TABLE_URI,
+                ExampleContract.ExampleEntry.CONTENT_URI,
                 null,
                 null,
                 null,
@@ -131,7 +145,7 @@ public class TestExampleProvider extends AndroidTestCase {
         long id = cursor.getLong(cursor.getColumnIndex(ExampleContract.ExampleEntry._ID));
 
          int rows = mContext.getContentResolver().delete(
-                ExampleContract.ExampleEntry.buildExampleUriWithID(id),
+                ContentUris.withAppendedId(ExampleEntry.CONTENT_URI, id),
                 null,
                 null
         );
@@ -141,7 +155,7 @@ public class TestExampleProvider extends AndroidTestCase {
         cursor.close();
 
         cursor = mContext.getContentResolver().query(
-                ExampleContract.ExampleEntry.TABLE_URI,
+                ExampleContract.ExampleEntry.CONTENT_URI,
                 null,
                 null,
                 null,
@@ -162,14 +176,14 @@ public class TestExampleProvider extends AndroidTestCase {
 
         for(int i = 0; i < values.length; i++) {
             uris[i] = resolver.insert(
-                    ExampleContract.ExampleEntry.TABLE_URI, values[i]
+                    ExampleContract.ExampleEntry.CONTENT_URI, values[i]
             );
         }
 
         int friendsToAdd = 100;
 
         Cursor cursor = mContext.getContentResolver().query(
-                ExampleContract.ExampleEntry.TABLE_URI,
+                ExampleContract.ExampleEntry.CONTENT_URI,
                 null,
                 null,
                 null,
@@ -186,7 +200,7 @@ public class TestExampleProvider extends AndroidTestCase {
         value.put(ExampleEntry.NUMBER_OF_FRIENDS, friends + friendsToAdd);
 
         int rows = mContext.getContentResolver().update(
-                ExampleContract.ExampleEntry.buildExampleUriWithID(id),
+                ContentUris.withAppendedId(ExampleEntry.CONTENT_URI, id),
                 value,
                 null,
                 null
@@ -197,7 +211,7 @@ public class TestExampleProvider extends AndroidTestCase {
         cursor.close();
 
         cursor = mContext.getContentResolver().query(
-                ExampleContract.ExampleEntry.buildExampleUriWithID(id),
+                ContentUris.withAppendedId(ExampleEntry.CONTENT_URI, id),
                 null,
                 null,
                 null,
@@ -217,9 +231,11 @@ public class TestExampleProvider extends AndroidTestCase {
     }
 
     public void testGetType(){
-        assertEquals(mContext.getContentResolver().getType(ExampleEntry.TABLE_URI),
+        assertEquals(mContext.getContentResolver().getType(ExampleEntry.CONTENT_URI),
                 ExampleEntry.CONTENT_DIR_TYPE);
-        assertEquals(mContext.getContentResolver().getType(ExampleEntry.buildExampleUriWithID(1)),
+        assertEquals(mContext.getContentResolver().getType(
+                        ContentUris.withAppendedId(ExampleEntry.CONTENT_URI, 1
+                        )),
                 ExampleEntry.CONTENT_ITEM_TYPE);
     }
 
@@ -228,10 +244,10 @@ public class TestExampleProvider extends AndroidTestCase {
         ContentResolver resolver =  mContext.getContentResolver();
         ContentValues[] values = createDummyData();
 
-        resolver.bulkInsert(ExampleEntry.TABLE_URI, values);
+        resolver.bulkInsert(ExampleEntry.CONTENT_URI, values);
 
         Cursor cursor = mContext.getContentResolver().query(
-                ExampleEntry.TABLE_URI,
+                ExampleEntry.CONTENT_URI,
                 null,
                 null,
                 null,

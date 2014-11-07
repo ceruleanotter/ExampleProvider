@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package android.example.com.exampleprovider.data;
 
 import android.content.ContentProvider;
@@ -6,13 +21,13 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
-
 import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
+import android.net.Uri;
 
 /**
  * Created by lyla on 11/4/14.
  */
+//TODO order method query, insert, bulk insert, delete, update, then get type
 public class ExampleProvider extends ContentProvider{
 
     private ExampleDbHelper mDbHelper;
@@ -35,11 +50,13 @@ public class ExampleProvider extends ContentProvider{
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
 
         //URI Matchers need your content authority
+
+        //TODO REMOVE THIS VARIABLE AND PUT IT INSIDE THE add uri below
         final String authority = ExampleContract.CONTENT_AUTHORITY;
 
         // For each type of URI you want to add, create a corresponding code.
-        matcher.addURI(authority, ExampleEntry.TABLE_NAME, FRIEND);
-        matcher.addURI(authority, ExampleEntry.TABLE_NAME + "/#", FRIEND_WITH_ID);
+        matcher.addURI(authority, ExampleEntry.PATH_FRIENDS, FRIEND);
+        matcher.addURI(authority, ExampleEntry.PATH_FRIENDS + "/#", FRIEND_WITH_ID);
 
         return matcher;
     }
@@ -59,8 +76,9 @@ public class ExampleProvider extends ContentProvider{
 
         switch (sUriMatcher.match(uri)) {
             case FRIEND: {
+                //TODO just return
                 Cursor cursor = db.query(
-                        ExampleEntry.TABLE_NAME,
+                        ExampleEntry.PATH_FRIENDS,
                         projection,
                         selection,
                         selectionArgs,
@@ -73,7 +91,7 @@ public class ExampleProvider extends ContentProvider{
             }
             case FRIEND_WITH_ID: {
                 Cursor cursor = db.query(
-                        ExampleEntry.TABLE_NAME,
+                        ExampleEntry.PATH_FRIENDS,
                         projection,
                         ExampleEntry._ID + " = ?",
                         new String[]{String.valueOf(ContentUris.parseId(uri))},
@@ -106,19 +124,24 @@ public class ExampleProvider extends ContentProvider{
     }
 
     @Override
+    //TODO in insert, check content values; check that something
+    //Check for null, if it's null, throw IllegalArgumentException
+    //for ratings, also check 1-5
+    //put validation in a common method so that it can be used in on upgrade as well
+    //add these validation methods to the contract
     public Uri insert(Uri uri, ContentValues contentValues) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         switch (sUriMatcher.match(uri)) {
             case FRIEND: {
-                long id = db.insert(ExampleEntry.TABLE_NAME, null, contentValues);
+                long id = db.insert(ExampleEntry.PATH_FRIENDS, null, contentValues);
 
                 if (id == -1) return null; //it failed!
 
                 //This is where you update anything that might also be watching the content provider
                 getContext().getContentResolver().notifyChange(uri, null);
 
-                return ExampleEntry.buildExampleUriWithID(id);
+                return ContentUris.withAppendedId(ExampleEntry.CONTENT_URI, id);
             }
             default: {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -135,11 +158,11 @@ public class ExampleProvider extends ContentProvider{
         switch (match) {
             case FRIEND:
                 rowsDeleted = db.delete(
-                        ExampleEntry.TABLE_NAME, null, null);
+                        ExampleEntry.PATH_FRIENDS, null, null);
                 break;
             case FRIEND_WITH_ID:
                 rowsDeleted = db.delete(
-                        ExampleEntry.TABLE_NAME,
+                        ExampleEntry.PATH_FRIENDS,
                         ExampleEntry._ID + " = ?",
                         new String[]{String.valueOf(ContentUris.parseId(uri))});
                 break;
@@ -156,6 +179,8 @@ public class ExampleProvider extends ContentProvider{
     }
 
     @Override
+    //TODO Also do valiations here
+    // change so that number update and rows deleted as variables look more similar
     public int update(Uri uri, ContentValues contentValues, String where, String[] whereargs) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int numberUpdated = 0;
@@ -163,7 +188,7 @@ public class ExampleProvider extends ContentProvider{
         switch (sUriMatcher.match(uri)) {
             case FRIEND_WITH_ID: {
                 numberUpdated = db.update(
-                        ExampleEntry.TABLE_NAME,
+                        ExampleEntry.PATH_FRIENDS,
                         contentValues,
                         ExampleEntry._ID + " = ?",
                         new String[]{String.valueOf(ContentUris.parseId(uri))}
@@ -185,6 +210,9 @@ public class ExampleProvider extends ContentProvider{
 
 
     @Override
+    //TODO
+    //If return count is not = 0 then notify
+    //add comments on this
     public int bulkInsert(Uri uri, ContentValues[] values) {
 
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -195,7 +223,7 @@ public class ExampleProvider extends ContentProvider{
                 int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
-                        long _id = db.insert(ExampleEntry.TABLE_NAME, null, value);
+                        long _id = db.insert(ExampleEntry.PATH_FRIENDS, null, value);
                         if (_id != -1) {
                             returnCount++;
                         }
