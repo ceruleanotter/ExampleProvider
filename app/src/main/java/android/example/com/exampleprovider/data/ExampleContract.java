@@ -13,10 +13,16 @@ public class ExampleContract {
     // relationship between a domain name and its website.  A convenient string to use for the
     // content authority is the package name for the app, which is guaranteed to be unique on the
     // device.
+
+    /**
+     * The {@link String} storing the content authority for the URI and database
+     */
     public static final String CONTENT_AUTHORITY = "com.example.android.exampleprovider";
 
-    // Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact
-    // the content provider.
+    /**
+     * The {@link java.net.URI} storing the base URI to build off of which apps will use to contact
+     * the content provider.
+     */
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     /**
