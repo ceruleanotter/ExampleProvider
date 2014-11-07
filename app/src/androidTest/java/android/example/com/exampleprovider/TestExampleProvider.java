@@ -19,10 +19,10 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.example.com.exampleprovider.data.ExampleContract;
-import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 import android.net.Uri;
 import android.test.AndroidTestCase;
+import android.example.com.exampleprovider.data.ExampleContract;
+import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 
 /**
  * This is a collection of tests for the associated Content Provider. See
@@ -31,7 +31,7 @@ import android.test.AndroidTestCase;
 public class TestExampleProvider extends AndroidTestCase {
 
     @Override
-    //Setup is called before each test
+    // Setup is called before each test
     protected void setUp() throws Exception {
         super.setUp();
         deleteAllRecords();
@@ -108,7 +108,7 @@ public class TestExampleProvider extends AndroidTestCase {
         );
 
         assertEquals(values.length, cursor.getCount());
-        cursor.close(); //ALWAYS CLOSE YOUR CURSOR
+        cursor.close(); // Always close your cursor!
 
         for(int i = 0; i < uris.length; i++) {
             cursor = mContext.getContentResolver().query(

@@ -21,8 +21,8 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 import android.net.Uri;
+import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 
 /**
  * This is a ContentProvider for the friends database. This content provider
@@ -33,7 +33,7 @@ public class ExampleProvider extends ContentProvider {
 
     private ExampleDbHelper mDbHelper;
 
-    //URI Matcher Codes
+    // URI Matcher Codes
     private static final int FRIEND = 100;
     private static final int FRIEND_WITH_ID = 101;
 
@@ -74,6 +74,7 @@ public class ExampleProvider extends ContentProvider {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         switch (sUriMatcher.match(uri)) {
+            // The case where you want to up look up a list of people
             case FRIEND: {
                 return db.query(
                         ExampleEntry.PATH_FRIENDS,
@@ -85,6 +86,7 @@ public class ExampleProvider extends ContentProvider {
                         sortOrder
                 );
             }
+            // The case where you look up an individual person
             case FRIEND_WITH_ID: {
                 return db.query(
                         ExampleEntry.PATH_FRIENDS,
@@ -103,11 +105,11 @@ public class ExampleProvider extends ContentProvider {
     }
 
     @Override
-    //TODO in insert, check content values; check that something
-    //Check for null, if it's null, throw IllegalArgumentException
-    //for ratings, also check 1-5
-    //put validation in a common method so that it can be used in on upgrade as well
-    //add these validation methods to the contract
+    // TODO in insert, check content values; check that something
+    // Check for null, if it's null, throw IllegalArgumentException
+    // for ratings, also check 1-5
+    // put validation in a common method so that it can be used in on upgrade as well
+    // add these validation methods to the contract
     public Uri insert(Uri uri, ContentValues contentValues) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
@@ -115,9 +117,9 @@ public class ExampleProvider extends ContentProvider {
             case FRIEND: {
                 long id = db.insert(ExampleEntry.PATH_FRIENDS, null, contentValues);
 
-                if (id == -1) return null; //it failed!
+                if (id == -1) return null; // it failed!
 
-                //This is where you update anything that might also be watching the content provider
+                // This is where you update anything that might also be watching the content provider
                 getContext().getContentResolver().notifyChange(uri, null);
 
                 return ContentUris.withAppendedId(ExampleEntry.CONTENT_URI, id);
@@ -129,8 +131,8 @@ public class ExampleProvider extends ContentProvider {
     }
 
     @Override
-    //TODO
-    //If return count is not = 0 then notify
+    // TODO
+    // If return count is not = 0 then notify
     public int bulkInsert(Uri uri, ContentValues[] values) {
 
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -138,40 +140,40 @@ public class ExampleProvider extends ContentProvider {
         switch (match) {
             case FRIEND:
 
-                //Allows you to issue multiple transactions and then have them executed in a batch
+                // Allows you to issue multiple transactions and then have them executed in a batch
                 db.beginTransaction();
 
-                //Counts the number of inserts that are successful
+                // Counts the number of inserts that are successful
                 int numberInserted = 0;
                 try {
                     for (ContentValues value : values) {
-                        //Try to insert
+                        // Try to insert
                         long _id = db.insert(ExampleEntry.PATH_FRIENDS, null, value);
-                        //As long as the insert didn't fail, increment the numberInserted
+                        // As long as the insert didn't fail, increment the numberInserted
                         if (_id != -1) {
                             numberInserted++;
                         }
                     }
-                    //If you get to the end without an exception, set the transaction as successful
-                    //No further database operations should be done after this call.
+                    // If you get to the end without an exception, set the transaction as successful
+                    // No further database operations should be done after this call.
                     db.setTransactionSuccessful();
                 } finally {
-                    //Causes all of the issued transactions to occur at once
+                    // Causes all of the issued transactions to occur at once
                     db.endTransaction();
                 }
                 if (numberInserted > 0) {
-                    //Notifies the content resolver that the underlying data has changed
+                    // Notifies the content resolver that the underlying data has changed
                     getContext().getContentResolver().notifyChange(uri, null);
                 }
                 return numberInserted;
             default:
-                //The default case is not optimized
+                // The default case is not optimized
                 return super.bulkInsert(uri, values);
         }
     }
 
     @Override
-    //TODO Also do valiations here
+    // TODO Also do valiations here
     public int update(Uri uri, ContentValues contentValues, String where, String[] whereargs) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int numberUpdated = 0;

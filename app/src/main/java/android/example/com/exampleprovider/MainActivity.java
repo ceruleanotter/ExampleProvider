@@ -21,11 +21,11 @@ import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
-import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 
 /**
  * This is the main activity for the ExampleProvider App. It contains a {@link ListView}

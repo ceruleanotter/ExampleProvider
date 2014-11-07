@@ -18,8 +18,8 @@ package android.example.com.exampleprovider.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 import android.util.Log;
+import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 
 /**
  * This helps organize database versioning and gives easy access to a
@@ -28,21 +28,23 @@ import android.util.Log;
 public class ExampleDbHelper extends SQLiteOpenHelper {
     private static final String LOG_TAG = ExampleDbHelper.class.getSimpleName();
 
-    // If you change the database schema, you must increment the database version.
+    /**
+     * Stores the current version of the database, starting at one. If you change the database schema,
+     * you must increment the database version.
+     * */
     private static final int DATABASE_VERSION = 1;
+    /**
+     * The name of the sqlite database file on the device
+     */
     private static final String DATABASE_NAME = "example_database.db";
 
     public ExampleDbHelper(Context context) {
-
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-
     }
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-
         // Creates a table to hold how many friends each person has
-
         Log.i(LOG_TAG, "Bootstrapping database version: " + DATABASE_VERSION);
 
         sqLiteDatabase.execSQL(
@@ -52,14 +54,13 @@ public class ExampleDbHelper extends SQLiteOpenHelper {
                         ExampleEntry.NUMBER_OF_FRIENDS + " INTEGER NOT NULL " +
                         " );"
         );
-
     }
 
-    //This method is used if the schema of the table changes. In this simplified example, we are
-    //dropping (which completely deletes) the old data, before remaking the table with the new
-    //updated schema.
-    //Less destructive implementations could use alter table to save the current version of the
-    //table and then create the new, updated table and populate it with the old data.
+    // This method is used if the schema of the table changes. In this simplified example, we are
+    // dropping (which completely deletes) the old data, before remaking the table with the new
+    // updated schema.
+    // Less destructive implementations could use alter table to save the current version of the
+    // table and then create the new, updated table and populate it with the old data.
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int newVersion, int oldVersion) {
 
