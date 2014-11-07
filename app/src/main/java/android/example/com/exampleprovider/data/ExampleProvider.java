@@ -25,21 +25,24 @@ import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 import android.net.Uri;
 
 /**
- * Created by lyla on 11/4/14.
+ * {@link ExampleProvider} is a ContentProvider for the friends database. This content provider
+ * works with {@link ExampleContract} and {@link ExampleDbHelper} to provide managed and secure
+ * access to the friends database.
  */
-//TODO order method query, insert, bulk insert, delete, update, then get type
 public class ExampleProvider extends ContentProvider{
 
     private ExampleDbHelper mDbHelper;
-    public final static String LOG_TAG = ExampleProvider.class.getSimpleName();
 
     //URI Matcher Codes
-
     private static final int FRIEND = 100;
     private static final int FRIEND_WITH_ID = 101;
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
 
+    /**
+     * Builds a UriMatcher object for the friends database URIs
+     * @return
+     */
     private static UriMatcher buildUriMatcher() {
         // I know what you're thinking.  Why create a UriMatcher when you can use regular
         // expressions instead?  Because you're not crazy, that's why.
@@ -49,18 +52,13 @@ public class ExampleProvider extends ContentProvider{
         // URI.  It's common to use NO_MATCH as the code for this case.
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
 
-        //URI Matchers need your content authority
-
-        //TODO REMOVE THIS VARIABLE AND PUT IT INSIDE THE add uri below
-        final String authority = ExampleContract.CONTENT_AUTHORITY;
-
-        // For each type of URI you want to add, create a corresponding code.
-        matcher.addURI(authority, ExampleEntry.PATH_FRIENDS, FRIEND);
-        matcher.addURI(authority, ExampleEntry.PATH_FRIENDS + "/#", FRIEND_WITH_ID);
+        // For each type of URI you want to add, create a corresponding code. Not that URIMatchers
+        // Need your content authority.
+        matcher.addURI(ExampleContract.CONTENT_AUTHORITY, ExampleEntry.PATH_FRIENDS, FRIEND);
+        matcher.addURI(ExampleContract.CONTENT_AUTHORITY, ExampleEntry.PATH_FRIENDS + "/#", FRIEND_WITH_ID);
 
         return matcher;
     }
-
 
     @Override
     public boolean onCreate() {
@@ -76,8 +74,7 @@ public class ExampleProvider extends ContentProvider{
 
         switch (sUriMatcher.match(uri)) {
             case FRIEND: {
-                //TODO just return
-                Cursor cursor = db.query(
+                return db.query(
                         ExampleEntry.PATH_FRIENDS,
                         projection,
                         selection,
@@ -86,11 +83,9 @@ public class ExampleProvider extends ContentProvider{
                         null,
                         sortOrder
                 );
-                return cursor;
-
             }
             case FRIEND_WITH_ID: {
-                Cursor cursor = db.query(
+                return db.query(
                         ExampleEntry.PATH_FRIENDS,
                         projection,
                         ExampleEntry._ID + " = ?",
@@ -99,23 +94,6 @@ public class ExampleProvider extends ContentProvider{
                         null,
                         sortOrder
                 );
-                return cursor;
-            }
-
-            default: {
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
-            }
-        }
-    }
-
-    @Override
-    public String getType(Uri uri) {
-        switch (sUriMatcher.match(uri)) {
-            case FRIEND: {
-                return ExampleEntry.CONTENT_DIR_TYPE;
-            }
-            case FRIEND_WITH_ID: {
-                return ExampleEntry.CONTENT_ITEM_TYPE;
             }
             default: {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -145,42 +123,55 @@ public class ExampleProvider extends ContentProvider{
             }
             default: {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
-
             }
         }
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    //TODO
+    //If return count is not = 0 then notify
+    //add comments on this
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
-        int rowsDeleted;
         switch (match) {
             case FRIEND:
-                rowsDeleted = db.delete(
-                        ExampleEntry.PATH_FRIENDS, null, null);
-                break;
-            case FRIEND_WITH_ID:
-                rowsDeleted = db.delete(
-                        ExampleEntry.PATH_FRIENDS,
-                        ExampleEntry._ID + " = ?",
-                        new String[]{String.valueOf(ContentUris.parseId(uri))});
-                break;
+
+                //Allows you to issue multiple transactions and then have them executed in a batch
+                db.beginTransaction();
+
+                //Counts the number of inserts that are successful
+                int numberInserted = 0;
+                try {
+                    for (ContentValues value : values) {
+                        //Try to insert
+                        long _id = db.insert(ExampleEntry.PATH_FRIENDS, null, value);
+                        //As long as the insert didn't fail, increment the numberInserted
+                        if (_id != -1) {
+                            numberInserted++;
+                        }
+                    }
+                    //If you get to the end without an exception, set the transaction as successful
+                    //No further database operations should be done after this call.
+                    db.setTransactionSuccessful();
+                } finally {
+                    //Causes all of the issued transactions to occur at once
+                    db.endTransaction();
+                }
+                if (numberInserted > 0) {
+                    //Notifies the content resolver that the underlying data has changed
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
+                return numberInserted;
             default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                //The default case is not optimized
+                return super.bulkInsert(uri, values);
         }
-
-        // Because a null deletes all rows
-        if (selection == null || rowsDeleted != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
-        }
-
-        return rowsDeleted;
     }
 
     @Override
     //TODO Also do valiations here
-    // change so that number update and rows deleted as variables look more similar
     public int update(Uri uri, ContentValues contentValues, String where, String[] whereargs) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int numberUpdated = 0;
@@ -192,7 +183,7 @@ public class ExampleProvider extends ContentProvider{
                         contentValues,
                         ExampleEntry._ID + " = ?",
                         new String[]{String.valueOf(ContentUris.parseId(uri))}
-                        );
+                );
                 break;
             }
 
@@ -205,37 +196,48 @@ public class ExampleProvider extends ContentProvider{
             getContext().getContentResolver().notifyChange(uri, null);
         }
         return numberUpdated;
-
     }
 
-
     @Override
-    //TODO
-    //If return count is not = 0 then notify
-    //add comments on this
-    public int bulkInsert(Uri uri, ContentValues[] values) {
-
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
+        int numberDeleted;
         switch (match) {
             case FRIEND:
-                db.beginTransaction();
-                int returnCount = 0;
-                try {
-                    for (ContentValues value : values) {
-                        long _id = db.insert(ExampleEntry.PATH_FRIENDS, null, value);
-                        if (_id != -1) {
-                            returnCount++;
-                        }
-                    }
-                    db.setTransactionSuccessful();
-                } finally {
-                    db.endTransaction();
-                }
-                getContext().getContentResolver().notifyChange(uri, null);
-                return returnCount;
+                numberDeleted = db.delete(
+                        ExampleEntry.PATH_FRIENDS, null, null);
+                break;
+            case FRIEND_WITH_ID:
+                numberDeleted = db.delete(
+                        ExampleEntry.PATH_FRIENDS,
+                        ExampleEntry._ID + " = ?",
+                        new String[]{String.valueOf(ContentUris.parseId(uri))});
+                break;
             default:
-                return super.bulkInsert(uri, values);
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        // The first condition works because a null deletes all rows
+        if (selection == null || numberDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return numberDeleted;
+    }
+
+    @Override
+    public String getType(Uri uri) {
+        switch (sUriMatcher.match(uri)) {
+            case FRIEND: {
+                return ExampleEntry.CONTENT_DIR_TYPE;
+            }
+            case FRIEND_WITH_ID: {
+                return ExampleEntry.CONTENT_ITEM_TYPE;
+            }
+            default: {
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+            }
         }
     }
 }
