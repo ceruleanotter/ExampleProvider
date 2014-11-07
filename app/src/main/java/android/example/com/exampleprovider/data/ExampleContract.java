@@ -4,7 +4,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
- * {@link ExampleContract} defines the table and columns for the friends table as well as associated
+ * This defines the table and columns for the friends table as well as associated
  * URIs, and MIME types.
  */
 public class ExampleContract {

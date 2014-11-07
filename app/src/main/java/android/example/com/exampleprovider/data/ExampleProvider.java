@@ -25,7 +25,7 @@ import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 import android.net.Uri;
 
 /**
- * {@link ExampleProvider} is a ContentProvider for the friends database. This content provider
+ * This is a ContentProvider for the friends database. This content provider
  * works with {@link ExampleContract} and {@link ExampleDbHelper} to provide managed and secure
  * access to the friends database.
  */

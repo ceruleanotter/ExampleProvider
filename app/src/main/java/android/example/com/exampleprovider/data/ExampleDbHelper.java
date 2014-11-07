@@ -21,7 +21,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 
 /**
- * {@link ExampleDbHelper} helps organize database versioning and gives easy access to a
+ * This helps organize database versioning and gives easy access to a
  * SQLiteDatabase object.
  */
 public class ExampleDbHelper extends SQLiteOpenHelper {

@@ -28,7 +28,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 /**
- * This is the {@link MainActivity} for the ExampleProvider App. It contains a {@link ListView}
+ * This is the main activity for the ExampleProvider App. It contains a {@link ListView}
  * which displays the contents of the database accessed through the
  * {@link android.example.com.exampleprovider.data.ExampleProvider} class.
  */

@@ -25,7 +25,7 @@ import android.net.Uri;
 import android.test.AndroidTestCase;
 
 /**
- * These are a collection of tests for
+ * This is a collection of tests for the associated Content Provider. See
  * {@link android.example.com.exampleprovider.data.ExampleProvider}
  */
 public class TestExampleProvider extends AndroidTestCase {
