@@ -4,9 +4,9 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
- * Created by lyla on 11/3/14.
+ * {@link ExampleContract} defines the table and columns for the friends table as well as associated
+ * URIs, and MIME types.
  */
-
 public class ExampleContract {
 
     // The "Content authority" is a name for the entire content provider, similar to the
