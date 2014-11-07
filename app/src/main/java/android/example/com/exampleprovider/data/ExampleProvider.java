@@ -130,7 +130,6 @@ public class ExampleProvider extends ContentProvider{
     @Override
     //TODO
     //If return count is not = 0 then notify
-    //add comments on this
     public int bulkInsert(Uri uri, ContentValues[] values) {
 
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();

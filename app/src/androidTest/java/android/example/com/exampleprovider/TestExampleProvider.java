@@ -24,9 +24,11 @@ import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
 import android.net.Uri;
 import android.test.AndroidTestCase;
 
+/**
+ * These are a collection of tests for
+ * {@link android.example.com.exampleprovider.data.ExampleProvider}
+ */
 public class TestExampleProvider extends AndroidTestCase {
-
-    //TODO query insert update delete tests, same ordering as in the provider
 
     @Override
     //Setup is called before each test
@@ -41,6 +43,9 @@ public class TestExampleProvider extends AndroidTestCase {
         deleteAllRecords();
     }
 
+    /**
+     * Helper method to delete all of the record in the database.
+     */
     public void deleteAllRecords() {
         mContext.getContentResolver().delete(
                 ExampleEntry.CONTENT_URI,
@@ -59,6 +64,9 @@ public class TestExampleProvider extends AndroidTestCase {
         cursor.close();
     }
 
+    /**
+     * Helper method to create rows in the database to help perform further tests.
+     */
     public ContentValues[] createDummyData() {
         String nameOne = "Dan";
         String nameTwo = "Katherine";
@@ -76,7 +84,9 @@ public class TestExampleProvider extends AndroidTestCase {
         return values;
     }
 
-
+    /**
+     * Tests {@link android.example.com.exampleprovider.data.ExampleProvider}'s insert method.
+     */
     public void testInsert() throws Throwable {
         ContentResolver resolver =  mContext.getContentResolver();
 
@@ -120,19 +130,17 @@ public class TestExampleProvider extends AndroidTestCase {
 
     }
 
-
-    public void testDeleteLastEntry() throws Throwable {
+    /**
+     * Tests {@link android.example.com.exampleprovider.data.ExampleProvider}'s bulk insert method.
+     */
+    public void testBulkInsert(){
+        ContentResolver resolver =  mContext.getContentResolver();
         ContentValues[] values = createDummyData();
 
-        ContentResolver resolver =  mContext.getContentResolver();
-        for(int i = 0; i < values.length; i++) {
-            resolver.insert(
-                    ExampleContract.ExampleEntry.CONTENT_URI, values[i]
-            );
-        }
+        resolver.bulkInsert(ExampleEntry.CONTENT_URI, values);
 
         Cursor cursor = mContext.getContentResolver().query(
-                ExampleContract.ExampleEntry.CONTENT_URI,
+                ExampleEntry.CONTENT_URI,
                 null,
                 null,
                 null,
@@ -140,34 +148,28 @@ public class TestExampleProvider extends AndroidTestCase {
         );
 
         assertEquals(2, cursor.getCount());
-        cursor.moveToLast();
 
-        long id = cursor.getLong(cursor.getColumnIndex(ExampleContract.ExampleEntry._ID));
-
-         int rows = mContext.getContentResolver().delete(
-                ContentUris.withAppendedId(ExampleEntry.CONTENT_URI, id),
-                null,
-                null
-        );
-
-        assertEquals(rows, 1);
-
-        cursor.close();
-
-        cursor = mContext.getContentResolver().query(
-                ExampleContract.ExampleEntry.CONTENT_URI,
-                null,
-                null,
-                null,
-                null
-        );
-
-        assertEquals(1, cursor.getCount());
+        cursor.moveToFirst();
+        int i = 1;
+        while (cursor.moveToNext()) {
+            assertEquals(cursor.getString(cursor.getColumnIndex(
+                            ExampleContract.ExampleEntry.NAME)),
+                    values[i].getAsString(ExampleContract.ExampleEntry.NAME));
+            assertEquals(cursor.getInt(cursor.getColumnIndex(
+                            ExampleContract.ExampleEntry.NUMBER_OF_FRIENDS)),
+                    values[i].getAsInteger(ExampleEntry.NUMBER_OF_FRIENDS).intValue()
+            );
+            i--;
+        }
 
         cursor.close();
 
     }
 
+    /**
+     * Tests {@link android.example.com.exampleprovider.data.ExampleProvider}'s update by changing
+     * one values in one row.
+     */
     public void testUpdateEntry() throws Throwable {
         ContentResolver resolver =  mContext.getContentResolver();
 
@@ -205,9 +207,7 @@ public class TestExampleProvider extends AndroidTestCase {
                 null,
                 null
         );
-
         assertEquals(rows, 1);
-
         cursor.close();
 
         cursor = mContext.getContentResolver().query(
@@ -225,11 +225,61 @@ public class TestExampleProvider extends AndroidTestCase {
         assertEquals(newFriends, friends + friendsToAdd);
 
         cursor.close();
-
-
-
     }
 
+    /**
+     * Tests {@link android.example.com.exampleprovider.data.ExampleProvider}'s delete method by
+     * deleting the last entry in the table.
+     */
+    public void testDeleteLastEntry() throws Throwable {
+        ContentValues[] values = createDummyData();
+
+        ContentResolver resolver =  mContext.getContentResolver();
+        for(int i = 0; i < values.length; i++) {
+            resolver.insert(
+                    ExampleContract.ExampleEntry.CONTENT_URI, values[i]
+            );
+        }
+
+        Cursor cursor = mContext.getContentResolver().query(
+                ExampleContract.ExampleEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+
+        assertEquals(2, cursor.getCount());
+        cursor.moveToLast();
+
+        long id = cursor.getLong(cursor.getColumnIndex(ExampleContract.ExampleEntry._ID));
+
+        int rows = mContext.getContentResolver().delete(
+                ContentUris.withAppendedId(ExampleEntry.CONTENT_URI, id),
+                null,
+                null
+        );
+
+        assertEquals(rows, 1);
+
+        cursor.close();
+
+        cursor = mContext.getContentResolver().query(
+                ExampleContract.ExampleEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+
+        assertEquals(1, cursor.getCount());
+        cursor.close();
+    }
+
+    /**
+     * Tests {@link android.example.com.exampleprovider.data.ExampleProvider}'s getType method with
+     * both datatypes.
+     */
     public void testGetType(){
         assertEquals(mContext.getContentResolver().getType(ExampleEntry.CONTENT_URI),
                 ExampleEntry.CONTENT_DIR_TYPE);
@@ -238,39 +288,4 @@ public class TestExampleProvider extends AndroidTestCase {
                         )),
                 ExampleEntry.CONTENT_ITEM_TYPE);
     }
-
-
-    public void testBulkInsert(){
-        ContentResolver resolver =  mContext.getContentResolver();
-        ContentValues[] values = createDummyData();
-
-        resolver.bulkInsert(ExampleEntry.CONTENT_URI, values);
-
-        Cursor cursor = mContext.getContentResolver().query(
-                ExampleEntry.CONTENT_URI,
-                null,
-                null,
-                null,
-                null
-        );
-
-        assertEquals(2, cursor.getCount());
-
-        cursor.moveToFirst();
-        int i = 1;
-        while (cursor.moveToNext()) {
-            assertEquals(cursor.getString(cursor.getColumnIndex(
-                            ExampleContract.ExampleEntry.NAME)),
-                    values[i].getAsString(ExampleContract.ExampleEntry.NAME));
-            assertEquals(cursor.getInt(cursor.getColumnIndex(
-                            ExampleContract.ExampleEntry.NUMBER_OF_FRIENDS)),
-                    values[i].getAsInteger(ExampleEntry.NUMBER_OF_FRIENDS).intValue()
-            );
-            i--;
-        }
-
-        cursor.close();
-
-    }
-
 }
