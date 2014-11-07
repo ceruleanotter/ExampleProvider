@@ -179,6 +179,15 @@ public class ExampleProvider extends ContentProvider {
         int numberUpdated = 0;
 
         switch (sUriMatcher.match(uri)) {
+            case FRIEND: {
+                numberUpdated = db.update(
+                        ExampleEntry.PATH_FRIENDS,
+                        contentValues,
+                        null,
+                        null);
+                break;
+            }
+
             case FRIEND_WITH_ID: {
                 numberUpdated = db.update(
                         ExampleEntry.PATH_FRIENDS,
