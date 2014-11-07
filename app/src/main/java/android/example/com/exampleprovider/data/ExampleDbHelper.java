@@ -19,12 +19,14 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
+import android.util.Log;
 
 /**
  * This helps organize database versioning and gives easy access to a
  * SQLiteDatabase object.
  */
 public class ExampleDbHelper extends SQLiteOpenHelper {
+    private static final String LOG_TAG = ExampleDbHelper.class.getSimpleName();
 
     // If you change the database schema, you must increment the database version.
     private static final int DATABASE_VERSION = 1;
@@ -41,7 +43,7 @@ public class ExampleDbHelper extends SQLiteOpenHelper {
 
         // Creates a table to hold how many friends each person has
 
-        //TODO LOG TO OUTPUT DATABASE VERSION
+        Log.i(LOG_TAG, "Bootstrapping database version: " + DATABASE_VERSION);
 
         sqLiteDatabase.execSQL(
                 "CREATE TABLE " + ExampleEntry.PATH_FRIENDS + " (" +
@@ -59,8 +61,9 @@ public class ExampleDbHelper extends SQLiteOpenHelper {
     //Less destructive implementations could use alter table to save the current version of the
     //table and then create the new, updated table and populate it with the old data.
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i2) {
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int newVersion, int oldVersion) {
 
+        Log.i(LOG_TAG, String.format("Upgrading database from version %d to %d", oldVersion, newVersion));
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ExampleEntry.PATH_FRIENDS);
         onCreate(sqLiteDatabase);
 
