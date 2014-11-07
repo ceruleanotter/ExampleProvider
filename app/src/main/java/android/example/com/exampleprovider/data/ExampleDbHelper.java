@@ -39,8 +39,7 @@ public class ExampleDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
 
-        // Create a table to hold locations.  A location consists of the string supplied in the
-        // location setting, the city name, and the latitude and longitude
+        // Creates a table to hold how many friends each person has
 
         //TODO LOG TO OUTPUT DATABASE VERSION
 
@@ -54,6 +53,11 @@ public class ExampleDbHelper extends SQLiteOpenHelper {
 
     }
 
+    //This method is used if the schema of the table changes. In this simplified example, we are
+    //dropping (which completely deletes) the old data, before remaking the table with the new
+    //updated schema.
+    //Less destructive implementations could use alter table to save the current version of the
+    //table and then create the new, updated table and populate it with the old data.
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i2) {
 
