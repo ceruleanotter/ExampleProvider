@@ -29,7 +29,7 @@ import android.net.Uri;
  * works with {@link ExampleContract} and {@link ExampleDbHelper} to provide managed and secure
  * access to the friends database.
  */
-public class ExampleProvider extends ContentProvider{
+public class ExampleProvider extends ContentProvider {
 
     private ExampleDbHelper mDbHelper;
 
@@ -41,6 +41,7 @@ public class ExampleProvider extends ContentProvider{
 
     /**
      * Builds a UriMatcher object for the friends database URIs
+     *
      * @return
      */
     private static UriMatcher buildUriMatcher() {

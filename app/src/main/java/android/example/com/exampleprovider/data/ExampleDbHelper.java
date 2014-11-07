@@ -46,10 +46,10 @@ public class ExampleDbHelper extends SQLiteOpenHelper {
 
         sqLiteDatabase.execSQL(
                 "CREATE TABLE " + ExampleEntry.PATH_FRIENDS + " (" +
-                ExampleEntry._ID + " INTEGER PRIMARY KEY," +
-                ExampleEntry.NAME + " TEXT UNIQUE NOT NULL, " +
-                ExampleEntry.NUMBER_OF_FRIENDS + " INTEGER NOT NULL " +
-                " );"
+                        ExampleEntry._ID + " INTEGER PRIMARY KEY," +
+                        ExampleEntry.NAME + " TEXT UNIQUE NOT NULL, " +
+                        ExampleEntry.NUMBER_OF_FRIENDS + " INTEGER NOT NULL " +
+                        " );"
         );
 
     }
