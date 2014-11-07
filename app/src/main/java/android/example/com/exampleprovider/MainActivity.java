@@ -24,11 +24,24 @@ import android.support.v7.app.ActionBarActivity;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-
+/**
+ * This is the {@link MainActivity} for the ExampleProvider App. It contains a {@link ListView}
+ * which displays the contents of the database accessed through the
+ * {@link android.example.com.exampleprovider.data.ExampleProvider} class.
+ */
 public class MainActivity extends ActionBarActivity {
-    public static final String LOG_TAG = MainActivity.class.getSimpleName();
-    ListView mListView;
+    private ListView mListView;
 
+    //For the SimpleCursorAdapter to match the in the friends database columns to layout items
+    private static final String[] COLUMNS_TO_BE_BOUND = new String[] {
+            ExampleEntry.NAME,
+            ExampleEntry.NUMBER_OF_FRIENDS
+    };
+
+    private static final int[] LAYOUT_ITEMS_TO_FILL = new int[] {
+            android.R.id.text1,
+            android.R.id.text2
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,30 +52,21 @@ public class MainActivity extends ActionBarActivity {
 
         Cursor cursor = this.getContentResolver().query(ExampleEntry.CONTENT_URI,null, null,null,null);
         mListView = (ListView) findViewById(R.id.main_list_view);
-        ContentResolver resolver = getContentResolver();
-        String[] columnsToBeBound = new String[] {
-                ExampleEntry.NAME,
-                ExampleEntry.NUMBER_OF_FRIENDS
-        };
-
-        int[] layoutItemsToFill = new int[] {
-                android.R.id.text1,
-                android.R.id.text2
-        };
-
 
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
                 android.R.layout.two_line_list_item,
                 cursor,
-                columnsToBeBound,
-                layoutItemsToFill,
+                COLUMNS_TO_BE_BOUND,
+                LAYOUT_ITEMS_TO_FILL,
                 0);
 
-
         mListView.setAdapter(adapter);
-
     }
 
+    /**
+     * Inserts dummy data into the friends database via
+     * {@link android.example.com.exampleprovider.data.ExampleProvider#bulkInsert(android.net.Uri, android.content.ContentValues[])}
+     */
     private void insertData() {
         ContentResolver resolver =  this.getContentResolver();
 

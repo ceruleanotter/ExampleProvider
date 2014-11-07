@@ -28,7 +28,7 @@ public class ExampleDbHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version.
     private static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "example_database.db";
+    private static final String DATABASE_NAME = "example_database.db";
 
     public ExampleDbHelper(Context context) {
 
