@@ -57,5 +57,4 @@ public class ExampleContract {
         public static final String NUMBER_OF_FRIENDS = "num_friends";
 
     }
-
 }
