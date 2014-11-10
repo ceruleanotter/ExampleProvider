@@ -15,26 +15,28 @@
  */
 package android.example.com.exampleprovider;
 
-import android.app.LoaderManager;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.CursorLoader;
-import android.content.Loader;
 import android.database.Cursor;
-import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.widget.ListView;
 
 /**
  * This is the main activity for the ExampleProvider App. It contains a {@link ListView}
  * which displays the contents of the database accessed through the
  * {@link android.example.com.exampleprovider.data.ExampleProvider} class.
  */
-public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cursor> {
     private ListView mListView;
     private SimpleCursorAdapter mAdapter;
+
 
     //For the SimpleCursorAdapter to match the in the friends database columns to layout items
     private static final String[] COLUMNS_TO_BE_BOUND = new String[] {
@@ -59,6 +61,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
         mListView = (ListView) findViewById(R.id.main_list_view);
 
+
         mAdapter = new SimpleCursorAdapter(this,
                 android.R.layout.two_line_list_item,
                 null,
@@ -69,7 +72,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         mListView.setAdapter(mAdapter);
 
         //Initializes the loader
-        getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
+        getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
     }
 
     /**
@@ -113,22 +116,21 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
                 null
         );
     }
-
     @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-    /*
-     * Moves the query results into the adapter, causing the
-     * ListView fronting this adapter to re-display
-     */
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        /**
+         * Moves the query results into the adapter, causing the
+         * ListView fronting this adapter to re-display
+         */
         mAdapter.changeCursor(cursor);
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-    /*
-     * Clears out the adapter's reference to the Cursor.
-     * This prevents memory leaks.
-     */
+    public void onLoaderReset(Loader<Cursor> loader) {
+        /**
+         * Clears out the adapter's reference to the Cursor.
+         * This prevents memory leaks.
+         */
         mAdapter.changeCursor(null);
     }
 }
