@@ -25,13 +25,12 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.widget.ListView;
-
-//TODO turn off auto import android.example.com.exmapleprovider.data
+import android.example.com.exampleprovider.data.ExampleProvider;
 
 /**
  * This is the main activity for the ExampleProvider App. It contains a {@link ListView}
  * which displays the contents of the database accessed through the
- * {@link android.example.com.exampleprovider.data.ExampleProvider} class.
+ * {@link ExampleProvider} class.
  */
 public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cursor> {
     private ListView mListView;
@@ -73,11 +72,10 @@ public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cu
 
     /**
      * Inserts dummy data into the friends database via
-     * {@link android.example.com.exampleprovider.data.ExampleProvider#bulkInsert(android.net.Uri, android.content.ContentValues[])}
+     * {@link ExampleProvider#bulkInsert(android.net.Uri, android.content.ContentValues[])}
      * To keep the code simple for this toy app we are inserting the data here.
      * Normally this should be done on a separate thread, as we do in Sunshine with AsyncTask.
      */
-    //TODO import android.example.com.example provider
     private void insertData() {
         Cursor cursor = getContentResolver().query(ExampleEntry.CONTENT_URI,
                 null, null, null, null);

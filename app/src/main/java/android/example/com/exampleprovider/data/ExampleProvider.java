@@ -21,8 +21,8 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
+import android.net.Uri;
 
 /**
  * This is a ContentProvider for the friends database. This content provider
@@ -57,6 +57,23 @@ public class ExampleProvider extends ContentProvider {
         matcher.addURI(ExampleContract.CONTENT_AUTHORITY, ExampleEntry.PATH_FRIENDS + "/#", FRIEND_WITH_ID);
 
         return matcher;
+    }
+
+    /**
+     * Checks whether values can be inserted in the database
+     */
+    private static void sanityCheckInput(ContentValues values) {
+
+        if (values == null) {
+            throw new IllegalArgumentException("Cannot have null content values");
+        }
+
+        Integer newNumberFriends = values.getAsInteger(ExampleEntry.NUMBER_OF_FRIENDS);
+
+        if ((newNumberFriends != null) && (newNumberFriends.intValue() < 0)) {
+            throw new IllegalArgumentException("Cannot have a negative number of friends: " +
+                    newNumberFriends);
+        }
     }
 
     @Override
@@ -111,6 +128,8 @@ public class ExampleProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues contentValues) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
+        sanityCheckInput(contentValues);
+
         switch (sUriMatcher.match(uri)) {
             case FRIEND: {
                 long id = db.insert(ExampleEntry.PATH_FRIENDS, null, contentValues);
@@ -144,6 +163,8 @@ public class ExampleProvider extends ContentProvider {
                 int numberInserted = 0;
                 try {
                     for (ContentValues value : values) {
+                        // Check the data is okay
+                        sanityCheckInput(value);
                         // Try to insert
                         long _id = db.insert(ExampleEntry.PATH_FRIENDS, null, value);
                         // As long as the insert didn't fail, increment the numberInserted
@@ -175,11 +196,7 @@ public class ExampleProvider extends ContentProvider {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int numberUpdated = 0;
 
-        Integer newNumberFriends = contentValues.getAsInteger(ExampleEntry.NUMBER_OF_FRIENDS);
-        if (newNumberFriends != null && newNumberFriends < 0) {
-            throw new IllegalStateException("Cannot have a negative number of friends: " +
-                    newNumberFriends);
-        }
+        sanityCheckInput(contentValues);
 
         switch (sUriMatcher.match(uri)) {
             case FRIEND: {
