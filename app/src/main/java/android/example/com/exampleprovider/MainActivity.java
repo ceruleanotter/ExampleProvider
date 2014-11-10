@@ -84,8 +84,8 @@ public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cu
 
                 String nameOne = "Dan";
                 String nameTwo = "Katherine";
-                int friendsOne = 500;
-                int friendsTwo = 500;
+                int friendsOne = 52;
+                int friendsTwo = 598;
 
                 ContentValues[] values = new ContentValues[2];
                 values[0] = new ContentValues();
