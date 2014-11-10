@@ -15,8 +15,6 @@
  */
 package android.example.com.exampleprovider;
 
-
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
@@ -28,6 +26,8 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.widget.ListView;
 
+//TODO turn off auto import android.example.com.exmapleprovider.data
+
 /**
  * This is the main activity for the ExampleProvider App. It contains a {@link ListView}
  * which displays the contents of the database accessed through the
@@ -36,7 +36,6 @@ import android.widget.ListView;
 public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cursor> {
     private ListView mListView;
     private SimpleCursorAdapter mAdapter;
-
 
     //For the SimpleCursorAdapter to match the in the friends database columns to layout items
     private static final String[] COLUMNS_TO_BE_BOUND = new String[] {
@@ -59,50 +58,53 @@ public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cu
 
         insertData();
 
-        mListView = (ListView) findViewById(R.id.main_list_view);
-
-
         mAdapter = new SimpleCursorAdapter(this,
                 android.R.layout.two_line_list_item,
                 null,
                 COLUMNS_TO_BE_BOUND,
                 LAYOUT_ITEMS_TO_FILL,
                 0);
-
+        mListView = (ListView) findViewById(R.id.main_list_view);
         mListView.setAdapter(mAdapter);
 
-        //Initializes the loader
+        // Initializes the loader.
         getSupportLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
     }
 
     /**
      * Inserts dummy data into the friends database via
      * {@link android.example.com.exampleprovider.data.ExampleProvider#bulkInsert(android.net.Uri, android.content.ContentValues[])}
+     * To keep the code simple for this toy app we are inserting the data here.
+     * Normally this should be done on a separate thread, as we do in Sunshine with AsyncTask.
      */
+    //TODO import android.example.com.example provider
     private void insertData() {
-        ContentResolver resolver =  this.getContentResolver();
+        Cursor cursor = getContentResolver().query(ExampleEntry.CONTENT_URI,
+                null, null, null, null);
+        try {
+            if (cursor.getCount() == 0) {
 
-        Cursor cursor = resolver.query(ExampleEntry.CONTENT_URI, null,null,null,null);
-        if (cursor.getCount() == 0) {
+                String nameOne = "Dan";
+                String nameTwo = "Katherine";
+                int friendsOne = 500;
+                int friendsTwo = 500;
 
-            String nameOne = "Dan";
-            String nameTwo = "Katherine";
-            int friendsOne = 500;
-            int friendsTwo = 500;
+                ContentValues[] values = new ContentValues[2];
+                values[0] = new ContentValues();
+                values[0].put(ExampleEntry.NAME, nameOne);
+                values[0].put(ExampleEntry.NUMBER_OF_FRIENDS, friendsOne);
 
-            ContentValues[] values = new ContentValues[2];
-            values[0] = new ContentValues();
-            values[0].put(ExampleEntry.NAME, nameOne);
-            values[0].put(ExampleEntry.NUMBER_OF_FRIENDS, friendsOne);
+                values[1] = new ContentValues();
+                values[1].put(ExampleEntry.NAME, nameTwo);
+                values[1].put(ExampleEntry.NUMBER_OF_FRIENDS, friendsTwo);
 
-
-            values[1] = new ContentValues();
-            values[1].put(ExampleEntry.NAME, nameTwo);
-            values[1].put(ExampleEntry.NUMBER_OF_FRIENDS, friendsTwo);
-
-            resolver.bulkInsert(ExampleEntry.CONTENT_URI,values);
+                getContentResolver().bulkInsert(ExampleEntry.CONTENT_URI,values);
+            }
+        } finally {
+            // If there is a problem reading from the cursor, we still try to close it to avoid
+            // memory leaks from a lingering open cursor.
+            cursor.close();
         }
-        cursor.close();
     }
 
     @Override
@@ -116,21 +118,18 @@ public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cu
                 null
         );
     }
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        /**
-         * Moves the query results into the adapter, causing the
-         * ListView fronting this adapter to re-display
-         */
+        // Moves the query results into the adapter, causing the
+        // ListView fronting this adapter to re-display
         mAdapter.changeCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        /**
-         * Clears out the adapter's reference to the Cursor.
-         * This prevents memory leaks.
-         */
+        // Clears out the adapter's reference to the Cursor.
+        // This prevents memory leaks.
         mAdapter.changeCursor(null);
     }
 }

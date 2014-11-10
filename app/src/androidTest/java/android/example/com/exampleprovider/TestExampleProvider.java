@@ -29,9 +29,10 @@ import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
  * {@link android.example.com.exampleprovider.data.ExampleProvider}
  */
 public class TestExampleProvider extends AndroidTestCase {
-
+    /**
+     *     Setup is called before each test
+     */
     @Override
-    // Setup is called before each test
     protected void setUp() throws Exception {
         super.setUp();
         deleteAllRecords();
@@ -60,8 +61,11 @@ public class TestExampleProvider extends AndroidTestCase {
                 null,
                 null
         );
-        assertEquals(0, cursor.getCount());
-        cursor.close();
+        try {
+            assertEquals(0, cursor.getCount());
+        } finally {
+            cursor.close();
+        }
     }
 
     /**
@@ -88,6 +92,7 @@ public class TestExampleProvider extends AndroidTestCase {
      * Tests {@link android.example.com.exampleprovider.data.ExampleProvider}'s insert method.
      */
     public void testInsert() throws Throwable {
+        //TODO change to just one
         ContentResolver resolver =  mContext.getContentResolver();
 
         ContentValues[] values = createDummyData();
@@ -107,8 +112,11 @@ public class TestExampleProvider extends AndroidTestCase {
                 null
         );
 
-        assertEquals(values.length, cursor.getCount());
-        cursor.close(); // Always close your cursor!
+        try {
+            assertEquals(values.length, cursor.getCount());
+        } finally {
+            cursor.close(); // Always close your cursor!
+        }
 
         for(int i = 0; i < uris.length; i++) {
             cursor = mContext.getContentResolver().query(
@@ -118,16 +126,20 @@ public class TestExampleProvider extends AndroidTestCase {
                     null,
                     null
             );
-            cursor.moveToFirst();
-            assertEquals(cursor.getString(cursor.getColumnIndex(
-                            ExampleContract.ExampleEntry.NAME)),
-                    values[i].getAsString(ExampleEntry.NAME));
-            assertEquals(cursor.getInt(cursor.getColumnIndex(
-                            ExampleContract.ExampleEntry.NUMBER_OF_FRIENDS)),
-                    values[i].getAsInteger(ExampleEntry.NUMBER_OF_FRIENDS).intValue());
-            cursor.close();
+            try {
+                cursor.moveToFirst();
+                assertEquals(cursor.getString(cursor.getColumnIndex(
+                                ExampleContract.ExampleEntry.NAME)),
+                        values[i].getAsString(ExampleEntry.NAME)
+                );
+                assertEquals(cursor.getInt(cursor.getColumnIndex(
+                                ExampleContract.ExampleEntry.NUMBER_OF_FRIENDS)),
+                        values[i].getAsInteger(ExampleEntry.NUMBER_OF_FRIENDS).intValue()
+                );
+            } finally {
+                cursor.close();
+            }
         }
-
     }
 
     /**
@@ -147,23 +159,24 @@ public class TestExampleProvider extends AndroidTestCase {
                 null
         );
 
-        assertEquals(2, cursor.getCount());
-
-        cursor.moveToFirst();
-        int i = 1;
-        while (cursor.moveToNext()) {
-            assertEquals(cursor.getString(cursor.getColumnIndex(
-                            ExampleContract.ExampleEntry.NAME)),
-                    values[i].getAsString(ExampleContract.ExampleEntry.NAME));
-            assertEquals(cursor.getInt(cursor.getColumnIndex(
-                            ExampleContract.ExampleEntry.NUMBER_OF_FRIENDS)),
-                    values[i].getAsInteger(ExampleEntry.NUMBER_OF_FRIENDS).intValue()
-            );
-            i--;
+        try {
+            assertEquals(2, cursor.getCount());
+            cursor.moveToFirst();
+            int i = 1;
+            while (cursor.moveToNext()) {
+                assertEquals(cursor.getString(cursor.getColumnIndex(
+                                ExampleContract.ExampleEntry.NAME)),
+                        values[i].getAsString(ExampleContract.ExampleEntry.NAME)
+                );
+                assertEquals(cursor.getInt(cursor.getColumnIndex(
+                                ExampleContract.ExampleEntry.NUMBER_OF_FRIENDS)),
+                        values[i].getAsInteger(ExampleEntry.NUMBER_OF_FRIENDS).intValue()
+                );
+                i--;
+            }
+        } finally {
+            cursor.close();
         }
-
-        cursor.close();
-
     }
 
     /**
@@ -184,19 +197,26 @@ public class TestExampleProvider extends AndroidTestCase {
 
         int friendsToAdd = 100;
 
-        Cursor cursor = mContext.getContentResolver().query(
+        Cursor cursor1 = mContext.getContentResolver().query(
                 ExampleContract.ExampleEntry.CONTENT_URI,
-                null,
+                new String[] { ExampleEntry._ID, ExampleEntry.NUMBER_OF_FRIENDS },
                 null,
                 null,
                 null
         );
-
-        assertEquals(2, cursor.getCount());
-        cursor.moveToLast();
-
-        long id = cursor.getLong(cursor.getColumnIndex(ExampleEntry._ID));
-        int friends = cursor.getInt(cursor.getColumnIndex(ExampleEntry.NUMBER_OF_FRIENDS));
+        long id = -1;
+        int friends = -1;
+        try {
+            assertEquals(2, cursor1.getCount());
+            if (cursor1.moveToFirst()) {
+                // Based off of the index of the projection, _ID is 0
+                id = cursor1.getLong(0);
+                // Based off of the index of the projection, NUMBER_OF_FRIENDS is 1
+                friends = cursor1.getInt(1);
+            }
+        } finally {
+            cursor1.close();
+        }
 
         ContentValues value = new ContentValues();
         value.put(ExampleEntry.NUMBER_OF_FRIENDS, friends + friendsToAdd);
@@ -208,23 +228,23 @@ public class TestExampleProvider extends AndroidTestCase {
                 null
         );
         assertEquals(rows, 1);
-        cursor.close();
 
-        cursor = mContext.getContentResolver().query(
+        Cursor cursor2 = mContext.getContentResolver().query(
                 ContentUris.withAppendedId(ExampleEntry.CONTENT_URI, id),
                 null,
                 null,
                 null,
                 null
         );
+        try {
+            cursor2.moveToFirst();
+            assertEquals(cursor2.getCount(), 1);
 
-        cursor.moveToFirst();
-        assertEquals(cursor.getCount(), 1);
-
-        int newFriends = cursor.getInt(cursor.getColumnIndex(ExampleEntry.NUMBER_OF_FRIENDS));
-        assertEquals(newFriends, friends + friendsToAdd);
-
-        cursor.close();
+            int newFriends = cursor2.getInt(cursor2.getColumnIndex(ExampleEntry.NUMBER_OF_FRIENDS));
+            assertEquals(newFriends, friends + friendsToAdd);
+        } finally {
+            cursor2.close();
+        }
     }
 
     /**

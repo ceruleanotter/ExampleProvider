@@ -15,12 +15,12 @@ public class ExampleContract {
     // device.
 
     /**
-     * The {@link String} storing the content authority for the URI and database
+     * The String storing the content authority for the URI and database
      */
     public static final String CONTENT_AUTHORITY = "com.example.android.exampleprovider";
 
     /**
-     * The {@link java.net.URI} storing the base URI to build off of which apps will use to contact
+     * The base URI to build off of which apps will use to contact
      * the content provider.
      */
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);

@@ -40,9 +40,7 @@ public class ExampleProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildUriMatcher();
 
     /**
-     * Builds a UriMatcher object for the friends database URIs
-     *
-     * @return
+     * Builds a UriMatcher object for the friends database URIs.
      */
     private static UriMatcher buildUriMatcher() {
         // I know what you're thinking.  Why create a UriMatcher when you can use regular
@@ -74,7 +72,7 @@ public class ExampleProvider extends ContentProvider {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         switch (sUriMatcher.match(uri)) {
-            // The case where you want to up look up a list of people
+            // The case where you want to up look up a list of people.
             case FRIEND: {
                 return db.query(
                         ExampleEntry.PATH_FRIENDS,
@@ -86,7 +84,7 @@ public class ExampleProvider extends ContentProvider {
                         sortOrder
                 );
             }
-            // The case where you look up an individual person
+            // The case where you look up an individual person.
             case FRIEND_WITH_ID: {
                 return db.query(
                         ExampleEntry.PATH_FRIENDS,
@@ -134,7 +132,6 @@ public class ExampleProvider extends ContentProvider {
     // TODO
     // If return count is not = 0 then notify
     public int bulkInsert(Uri uri, ContentValues[] values) {
-
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         switch (match) {
@@ -173,10 +170,16 @@ public class ExampleProvider extends ContentProvider {
     }
 
     @Override
-    // TODO Also do valiations here
+    // TODO Also do valiations here check between 0 and 5
     public int update(Uri uri, ContentValues contentValues, String where, String[] whereargs) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int numberUpdated = 0;
+
+        Integer newNumberFriends = contentValues.getAsInteger(ExampleEntry.NUMBER_OF_FRIENDS);
+        if (newNumberFriends != null && newNumberFriends < 0) {
+            throw new IllegalStateException("Cannot have a negative number of friends: " +
+                    newNumberFriends);
+        }
 
         switch (sUriMatcher.match(uri)) {
             case FRIEND: {
@@ -196,7 +199,6 @@ public class ExampleProvider extends ContentProvider {
                 );
                 break;
             }
-
             default: {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
             }
