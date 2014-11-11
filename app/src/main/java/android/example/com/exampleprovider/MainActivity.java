@@ -18,21 +18,21 @@ package android.example.com.exampleprovider;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.example.com.exampleprovider.data.ExampleContract.ExampleEntry;
+import android.example.com.exampleprovider.data.ExampleProvider;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.app.ActionBarActivity;
 import android.widget.ListView;
-import android.example.com.exampleprovider.data.ExampleProvider;
 
 /**
  * This is the main activity for the ExampleProvider App. It contains a {@link ListView}
  * which displays the contents of the database accessed through the
  * {@link ExampleProvider} class.
  */
-public class MainActivity extends FragmentActivity implements LoaderCallbacks<Cursor> {
+public class MainActivity extends ActionBarActivity implements LoaderCallbacks<Cursor> {
     private ListView mListView;
     private SimpleCursorAdapter mAdapter;
 

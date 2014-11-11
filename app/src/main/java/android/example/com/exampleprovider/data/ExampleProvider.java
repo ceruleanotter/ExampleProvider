@@ -62,7 +62,7 @@ public class ExampleProvider extends ContentProvider {
     /**
      * Checks whether values can be inserted in the database
      */
-    private static void sanityCheckInput(ContentValues values) {
+    private static void checkInput(ContentValues values) {
 
         if (values == null) {
             throw new IllegalArgumentException("Cannot have null content values");
@@ -128,7 +128,7 @@ public class ExampleProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues contentValues) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
-        sanityCheckInput(contentValues);
+        checkInput(contentValues);
 
         switch (sUriMatcher.match(uri)) {
             case FRIEND: {
@@ -164,7 +164,7 @@ public class ExampleProvider extends ContentProvider {
                 try {
                     for (ContentValues value : values) {
                         // Check the data is okay
-                        sanityCheckInput(value);
+                        checkInput(value);
                         // Try to insert
                         long _id = db.insert(ExampleEntry.PATH_FRIENDS, null, value);
                         // As long as the insert didn't fail, increment the numberInserted
@@ -196,7 +196,7 @@ public class ExampleProvider extends ContentProvider {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int numberUpdated = 0;
 
-        sanityCheckInput(contentValues);
+        checkInput(contentValues);
 
         switch (sUriMatcher.match(uri)) {
             case FRIEND: {
